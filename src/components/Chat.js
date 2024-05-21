@@ -1,4 +1,3 @@
-// src/components/Chat.js
 import React, { useState, useEffect } from 'react';
 import Message from './Message';
 import Input from './Input';
@@ -10,11 +9,16 @@ function Chat({ socket, username }) {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
+    socket.on('previousMessages', (previousMessages) => {
+      setMessages(previousMessages);
+    });
+
     socket.on('message', (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
 
     socket.on('userList', (users) => {
+      console.log('Received user list:', users);
       setUsers(users);
     });
 
@@ -23,6 +27,7 @@ function Chat({ socket, username }) {
     });
 
     return () => {
+      socket.off('previousMessages');
       socket.off('message');
       socket.off('userList');
       socket.off('notification');
