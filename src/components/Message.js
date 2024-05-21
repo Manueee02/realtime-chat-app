@@ -1,11 +1,12 @@
 // src/components/Message.js
 import React from 'react';
+import { ListItem, ListItemText } from '@mui/material';
 
 function Message({ user, text }) {
   return (
-    <div className="message">
-      <strong>{user}:</strong> {text}
-    </div>
+    <ListItem>
+      <ListItemText primary={`${user}:`} secondary={text} />
+    </ListItem>
   );
 }
 

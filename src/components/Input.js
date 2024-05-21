@@ -1,5 +1,6 @@
 // src/components/Input.js
 import React, { useState } from 'react';
+import { Box, TextField, Button } from '@mui/material';
 
 function Input({ sendMessage }) {
   const [message, setMessage] = useState('');
@@ -12,15 +13,20 @@ function Input({ sendMessage }) {
   };
 
   return (
-    <div className="input">
-      <input
-        type="text"
+    <Box display="flex" padding="10px" borderTop="1px solid #ccc">
+      <TextField
+        fullWidth
+        variant="outlined"
+        placeholder="Type a message..."
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         onKeyPress={(e) => e.key === 'Enter' ? handleSendMessage() : null}
+        style={{ marginRight: '10px' }}
       />
-      <button onClick={handleSendMessage}>Send</button>
-    </div>
+      <Button variant="contained" color="primary" onClick={handleSendMessage}>
+        Send
+      </Button>
+    </Box>
   );
 }
 

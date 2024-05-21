@@ -12,10 +12,15 @@ const io = socketIo(server, {
   }
 });
 
+let users = [];
+
 io.on('connection', (socket) => {
   console.log('New user connected');
 
   socket.on('join', (username) => {
+    users.push({ id: socket.id, username });
+    io.emit('userList', users);
+    io.emit('notification', `${username} has joined the chat`);
     console.log(`${username} has joined the chat`);
   });
 
@@ -24,7 +29,13 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log('User disconnected');
+    const user = users.find((user) => user.id === socket.id);
+    if (user) {
+      users = users.filter((user) => user.id !== socket.id);
+      io.emit('userList', users);
+      io.emit('notification', `${user.username} has left the chat`);
+      console.log(`${user.username} has left the chat`);
+    }
   });
 });
 

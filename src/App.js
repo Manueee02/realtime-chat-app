@@ -2,9 +2,10 @@
 import React, { useState } from 'react';
 import io from 'socket.io-client';
 import Chat from './components/Chat';
+import { Container, TextField, Button, Typography } from '@mui/material';
 import './App.css';
 
-const socket = io('http://localhost:5000'); // Assicurati che l'indirizzo sia corretto
+const socket = io('http://localhost:5000');
 
 function App() {
   const [username, setUsername] = useState('');
@@ -17,22 +18,40 @@ function App() {
     }
   };
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    socket.disconnect();
+  };
+
   return (
-    <div className="App">
+    <Container maxWidth="sm" style={{ marginTop: '50px' }}>
       {!isLoggedIn ? (
         <div>
-          <input
-            type="text"
-            placeholder="Enter your username"
+          <Typography variant="h4" gutterBottom>
+            Enter your username
+          </Typography>
+          <TextField
+            label="Username"
+            variant="outlined"
+            fullWidth
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            style={{ marginBottom: '20px' }}
           />
-          <button onClick={handleLogin}>Join Chat</button>
+          <Button variant="contained" color="primary" onClick={handleLogin}>
+            Join Chat
+          </Button>
         </div>
       ) : (
-        <Chat socket={socket} username={username} />
+        <div>
+          
+          <Chat socket={socket} username={username} />
+          <Button variant="contained" color="secondary" onClick={handleLogout}>
+            Logout
+          </Button>
+        </div>
       )}
-    </div>
+    </Container>
   );
 }
 

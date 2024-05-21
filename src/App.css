@@ -1,4 +1,13 @@
 /* src/App.css */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.App {
+  text-align: center;
+}
+
 .message {
   padding: 10px;
   border-bottom: 1px solid #ccc;
