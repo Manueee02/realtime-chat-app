@@ -1,23 +1,37 @@
-import logo from './logo.svg';
+// src/App.js
+import React, { useState } from 'react';
+import io from 'socket.io-client';
+import Chat from './components/Chat';
 import './App.css';
 
+const socket = io('http://localhost:5000'); // Assicurati che l'indirizzo sia corretto
+
 function App() {
+  const [username, setUsername] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const handleLogin = () => {
+    if (username) {
+      setIsLoggedIn(true);
+      socket.emit('join', username);
+    }
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {!isLoggedIn ? (
+        <div>
+          <input
+            type="text"
+            placeholder="Enter your username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <button onClick={handleLogin}>Join Chat</button>
+        </div>
+      ) : (
+        <Chat socket={socket} username={username} />
+      )}
     </div>
   );
 }
