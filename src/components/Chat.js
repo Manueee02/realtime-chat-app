@@ -1,3 +1,5 @@
+// src/components/Chat.js
+
 import React, { useState, useEffect } from 'react';
 import Message from './Message';
 import Input from './Input';

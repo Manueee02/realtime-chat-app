@@ -1,4 +1,5 @@
-//server/index.js
+// server/index.js
+
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -75,7 +76,9 @@ io.on('connection', (socket) => {
       console.log("Login success:", { email, username: user.username });
       socket.emit('loginSuccess', { username: user.username, chatIds });
 
-      // Aggiungi l'utente alla lista degli utenti
+      const previousMessages = await Message.find({}); // Aggiungi un filtro se necessario
+      socket.emit('previousMessages', previousMessages);
+
       users.push({ id: socket.id, username: user.username });
       io.emit('userList', users);
       io.emit('notification', `${user.username} has joined the chat`);
@@ -89,7 +92,6 @@ io.on('connection', (socket) => {
     console.log("Message received:", message);
     io.emit('message', message);
 
-    // Salva il messaggio nel database
     const newMessage = new Message(message);
     await newMessage.save();
   });
