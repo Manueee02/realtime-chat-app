@@ -71,14 +71,18 @@ io.on('connection', (socket) => {
         return;
       }
 
-      const chats = await Chat.find({ participants: user._id });
-      const chatIds = chats.map(chat => chat._id);
       console.log("Login success:", { email, username: user.username });
-      socket.emit('loginSuccess', { username: user.username, chatIds });
+      socket.emit('loginSuccess', { username: user.username });
 
-      const previousMessages = await Message.find({}); // Aggiungi un filtro se necessario
+      // Recupera tutte le chat in cui l'utente è coinvolto
+      const chats = await Chat.find({ participants: user._id }).populate('participants');
+
+      // Recupera tutti i messaggi di queste chat
+      const chatIds = chats.map(chat => chat._id);
+      const previousMessages = await Message.find({ chat: { $in: chatIds } });
       socket.emit('previousMessages', previousMessages);
 
+      // Aggiungi l'utente alla lista degli utenti
       users.push({ id: socket.id, username: user.username });
       io.emit('userList', users);
       io.emit('notification', `${user.username} has joined the chat`);
@@ -92,6 +96,7 @@ io.on('connection', (socket) => {
     console.log("Message received:", message);
     io.emit('message', message);
 
+    // Salva il messaggio nel database
     const newMessage = new Message(message);
     await newMessage.save();
   });
