@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import io from 'socket.io-client';
 import Chat from './components/Chat';
-import { Container, TextField, Button, Typography } from '@mui/material';
+import { Container, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
 import './App.css';
 
 const socket = io('http://localhost:5000');
 
 function App() {
+  const [openLoginDialog, setOpenLoginDialog] = useState(false);
+  const [openSignUpDialog, setOpenSignUpDialog] = useState(false);
   const [username, setUsername] = useState('');
   const [emailRegister, setEmailRegister] = useState('');
   const [passwordRegister, setPasswordRegister] = useState('');
@@ -15,12 +17,27 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [chatIds, setChatIds] = useState([]);
 
-  const handleRegister = () => {
-    socket.emit('register', { email: emailRegister, password: passwordRegister, username });
-  };
-
   const handleLogin = () => {
     socket.emit('login', { email: emailLogin, password: passwordLogin });
+    handleCloseLoginDialog();
+  };
+
+  const handleSignUp = () => {
+    socket.emit('register', { email: emailRegister, password: passwordRegister, username });
+    handleCloseSignUpDialog();
+  };
+
+  const handleCloseLoginDialog = () => {
+    setOpenLoginDialog(false);
+    setEmailLogin('');
+    setPasswordLogin('');
+  };
+
+  const handleCloseSignUpDialog = () => {
+    setOpenSignUpDialog(false);
+    setEmailRegister('');
+    setPasswordRegister('');
+    setUsername('');
   };
 
   socket.on('registrationSuccess', () => {
@@ -31,17 +48,32 @@ function App() {
     setUsername(username);
     setIsLoggedIn(true);
     setChatIds(chatIds);
+    handleCloseLoginDialog(); // Chiude la finestra di dialogo dopo il login
   });
+  
 
   return (
     <Container maxWidth="sm" style={{ marginTop: '50px' }}>
       {isLoggedIn ? (
         <Chat socket={socket} username={username} chatIds={chatIds} />
       ) : (
-        <div>
-          <Typography variant="h4" gutterBottom>
+      <div>
+        <Typography variant="h3" gutterBottom align="center">
+          Welcome
+        </Typography>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
+          <Button variant="contained" color="primary" onClick={() => setOpenLoginDialog(true)} style={{ marginRight: '20px' }}>
             Login
-          </Typography>
+          </Button>
+          <Button variant="contained" color="primary" onClick={() => setOpenSignUpDialog(true)}>
+            Sign Up
+          </Button>
+        </div>
+
+      {/* Login Dialog */}
+      <Dialog open={openLoginDialog} onClose={handleCloseLoginDialog}>
+        <DialogTitle>Login</DialogTitle>
+        <DialogContent style={{padding:"1rem"}}>
           <TextField
             label="Email"
             variant="outlined"
@@ -59,12 +91,19 @@ function App() {
             onChange={(e) => setPasswordLogin(e.target.value)}
             style={{ marginBottom: '20px' }}
           />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseLoginDialog}>Cancel</Button>
           <Button variant="contained" color="primary" onClick={handleLogin}>
             Login
           </Button>
-          <Typography variant="h4" style={{ marginTop: '20px' }} gutterBottom>
-            Register
-          </Typography>
+        </DialogActions>
+      </Dialog>
+
+      {/* Sign Up Dialog */}
+      <Dialog open={openSignUpDialog} onClose={handleCloseSignUpDialog}>
+        <DialogTitle>Sign Up</DialogTitle>
+        <DialogContent style={{padding:"1rem"}}>
           <TextField
             label="Email"
             variant="outlined"
@@ -90,13 +129,19 @@ function App() {
             onChange={(e) => setUsername(e.target.value)}
             style={{ marginBottom: '20px' }}
           />
-          <Button variant="contained" color="primary" onClick={handleRegister}>
-            Register
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseSignUpDialog}>Cancel</Button>
+          <Button variant="contained" color="primary" onClick={handleSignUp}>
+            Sign Up
           </Button>
-        </div>
+        </DialogActions>
+      </Dialog>
+      </div>
       )}
     </Container>
   );
 }
 
 export default App;
+/*Fai in modo che ci Sia tipo una card in cui sono inseriti i pulsanti e la scritta, e predisponi degli allert usando snackbar per gli errori della password o nel login, e implementa il backdrop quando faccio il login e mi va sul componente chat*/
