@@ -6,26 +6,26 @@ import Input from './Input';
 import { Box, Paper, List, Typography, Divider } from '@mui/material';
 
 function Chat({ socket, username }) {
-  const [messages, setMessages] = useState([]);
+  const [events, setEvents] = useState([]);
   const [users, setUsers] = useState([]);
-  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     socket.on('previousMessages', (previousMessages) => {
-      setMessages(previousMessages);
+      const formattedMessages = previousMessages.map((msg) => ({ ...msg, type: 'message' }));
+      setEvents(formattedMessages);
     });
 
     socket.on('message', (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
+      setEvents((prevEvents) => [...prevEvents, { ...message, type: 'message' }]);
     });
 
     socket.on('userList', (users) => {
-      console.log('Received user list:', users);
       setUsers(users);
     });
 
     socket.on('notification', (notification) => {
-      setNotifications((prevNotifications) => [...prevNotifications, notification]);
+      const status = notification.includes('entra') ? 'entry' : notification.includes('esce') ? 'exit' : 'other';
+      setEvents((prevEvents) => [...prevEvents, { text: notification, type: 'notification', status }]);
     });
 
     return () => {
@@ -41,26 +41,41 @@ function Chat({ socket, username }) {
   };
 
   return (
-    <Box display="flex" flexDirection="column" height="100vh">
-      <Paper elevation={3} style={{ flex: 1, overflow: 'auto', marginBottom: '10px' }}>
+    <Box display="flex" flexDirection="column" height="100vh" style={{backgroundColor: ""}}>
+      <Paper elevation={3} style={{ 
+          flex: 1, 
+          overflow: 'auto', 
+          marginBottom: '10px', 
+          padding: "0.5rem", 
+          borderRadius:"0.3rem",
+          backgroundColor: "#161B22",
+          color: "#8D96A0",
+          }}>
         <List>
-          {notifications.map((note, index) => (
-            <Typography key={index} variant="subtitle2" style={{ color: 'gray' }}>
-              {note}
-            </Typography>
-          ))}
-          {messages.map((msg, index) => (
-            <Message key={index} user={msg.user} text={msg.text} />
+          {events.map((event, index) => (
+            event.type === 'message' ? (
+              <Message key={index} user={event.user} text={event.text} color1="#8D96A0" color2={"#8D96A0"}/>
+            ) : (
+              <Typography
+                key={index}
+                variant="subtitle2"
+                style={{
+                  color: event.text.includes('has joined the chat') ? '#29903B' : event.text.includes('has left the chat') ? '#B50000' : 'gray'
+                }}
+              >
+                {event.text}
+              </Typography>
+            )
           ))}
         </List>
       </Paper>
       <Input sendMessage={sendMessage} />
       <Divider />
-      <Box padding="10px">
-        <Typography variant="h6">Online Users</Typography>
+      <Box padding="10px" id="list_user">
+        <Typography variant="h6" style={{color: "#E6EAE6"}}>Online Users</Typography>
         <List>
           {users.map((user) => (
-            <Typography key={user.id} variant="body1">
+            <Typography key={user.id} variant="body1" style={{color: "#8D96A0"}}>
               {user.username}
             </Typography>
           ))}
