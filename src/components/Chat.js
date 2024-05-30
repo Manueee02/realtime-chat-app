@@ -1,13 +1,21 @@
-// src/components/Chat.js
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Message from './Message';
 import Input from './Input';
-import { Box, Paper, List, Typography, Divider } from '@mui/material';
+import { Box, Paper, List, Typography, Divider, Button, CircularProgress, Backdrop } from '@mui/material';
 
 function Chat({ socket, username }) {
   const [events, setEvents] = useState([]);
   const [users, setUsers] = useState([]);
+  const messagesEndRef = useRef(null);
+  const [showLoader, setShowLoader] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowLoader(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     socket.on('previousMessages', (previousMessages) => {
@@ -36,25 +44,46 @@ function Chat({ socket, username }) {
     };
   }, [socket]);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [events]);
+
   const sendMessage = (text) => {
     socket.emit('sendMessage', { user: username, text });
   };
 
+  const handleLogout = () => {
+    socket.emit('disconnectUser');
+    window.location.reload();
+  };
+
   return (
-    <Box display="flex" flexDirection="column" height="100vh" style={{backgroundColor: ""}}>
+    <Box display="flex" flexDirection="column" height="100vh">
+      {showLoader && (
+        <Backdrop open={showLoader} style={{ color: '#fff', zIndex: 1301 }}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
+      )}
+      <Box display="flex" justifyContent="space-between" padding="10px">
+        <Typography variant="h6" style={{ color: "#E6EAE6" }}>Chat</Typography>
+        <Button variant="contained" onClick={handleLogout} color='success'>
+          Logout
+        </Button>
+      </Box>
       <Paper elevation={3} style={{ 
           flex: 1, 
           overflow: 'auto', 
           marginBottom: '10px', 
           padding: "0.5rem", 
-          borderRadius:"0.3rem",
+          borderRadius: "0.3rem",
           backgroundColor: "#161B22",
           color: "#8D96A0",
-          }}>
+          scrollbarColor: "#8D96A0 #161B22", 
+          scrollbarWidth: "thin" }}>
         <List>
           {events.map((event, index) => (
             event.type === 'message' ? (
-              <Message key={index} user={event.user} text={event.text} color1="#8D96A0" color2={"#8D96A0"}/>
+              <Message key={index} user={event.user} text={event.text} color1="#8D96A0" color2="#8D96A0" />
             ) : (
               <Typography
                 key={index}
@@ -67,15 +96,16 @@ function Chat({ socket, username }) {
               </Typography>
             )
           ))}
+          <div ref={messagesEndRef} />
         </List>
       </Paper>
-      <Input sendMessage={sendMessage} />
+      <Input  sendMessage={sendMessage} />
       <Divider />
       <Box padding="10px" id="list_user">
-        <Typography variant="h6" style={{color: "#E6EAE6"}}>Online Users</Typography>
+        <Typography variant="h6" style={{ color: "#E6EAE6" }}>Online Users</Typography>
         <List>
           {users.map((user) => (
-            <Typography key={user.id} variant="body1" style={{color: "#8D96A0"}}>
+            <Typography key={user.id} variant="body1" style={{ color: "#8D96A0" }}>
               {user.username}
             </Typography>
           ))}

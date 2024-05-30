@@ -110,7 +110,19 @@ io.on('connection', (socket) => {
       io.emit('notification', `${user.username} has left the chat`);
     }
   });
+  
+  socket.on('disconnectUser', () => {
+    const user = users.find((user) => user.id === socket.id);
+    if (user) {
+      users = users.filter((user) => user.id !== socket.id);
+      io.emit('userList', users);
+      io.emit('notification', `${user.username} has left the chat`);
+    }
+    socket.disconnect();
+  });
 });
+
+
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

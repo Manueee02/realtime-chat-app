@@ -15,7 +15,8 @@ function Input({ sendMessage }) {
 
   return (
     <Box display="flex" padding="10px" >
-      <TextField
+      <TextField 
+        color='success'
         fullWidth
         variant="outlined"
         placeholder="Type a message..."
@@ -25,7 +26,7 @@ function Input({ sendMessage }) {
         style={{ marginRight: '10px', color:"#30363D" }}
         id="input_text"
       />
-      <Button variant="contained" color="primary" onClick={handleSendMessage}>
+      <Button color='success' variant="contained"  onClick={handleSendMessage}>
         <SendIcon/>
       </Button>
     </Box>
