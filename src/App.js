@@ -11,7 +11,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 
-const socket = io('http://localhost:5000');
+const socket = io(process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000');
 
 function App() {
   const [openLoginDialog, setOpenLoginDialog] = useState(false);

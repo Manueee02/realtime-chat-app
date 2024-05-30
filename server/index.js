@@ -147,8 +147,8 @@ const io = socketIo(server, {
   }
 });
 
-const mongoPass = process.env.REACT_APP_MONGO_PASS
-const mongoUri = process.env.MONGO_URI || `mongodb+srv://manuelsviluppo02:`+{mongoPass}+`@cluster0.s9tbcwb.mongodb.net/chattapp?retryWrites=true&w=majority&appName=Cluster0`;
+const mongoPass = process.env.REACT_APP_MONGO_PASS;
+const mongoUri = process.env.MONGO_URI || `mongodb+srv://manuelsviluppo02:${mongoPass}@cluster0.s9tbcwb.mongodb.net/chattapp?retryWrites=true&w=majority&appName=Cluster0`;
 
 mongoose.connect(mongoUri, {
   useNewUrlParser: true,
@@ -263,3 +263,4 @@ app.get('/*', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
