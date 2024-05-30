@@ -152,7 +152,8 @@ const mongoUri = process.env.MONGO_URI || `mongodb+srv://manuelsviluppo02:${mong
 
 mongoose.connect(mongoUri, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 30000,
 }).then(() => {
   console.log("Connected to MongoDB");
 }).catch((error) => {
